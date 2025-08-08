@@ -1,13 +1,26 @@
 package org.example.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "roles")
 public class Role {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private List<Permission> permissions = new ArrayList<>();
 
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "role_permissions",
+        joinColumns = @JoinColumn(name = "role_id"),
+        inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private List<Permission> permissions = new ArrayList<>();
 
     public Role(Long id, String name, List<Permission> permissions) {
         this.id = id;
@@ -16,7 +29,6 @@ public class Role {
     }
 
     public Role() {
-
     }
 
     public Long getId() {

@@ -68,26 +68,22 @@ public class UserServiceImpl implements IUserService {
             throw new IllegalArgumentException("Role IDs list cannot be null or empty");
         }
 
-        // Remove duplicates and null values
         List<Long> validRoleIds = roleIds.stream()
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 
-        // Verify user exists
         User user = userDao.findById(userId);
         if (user == null) {
             throw new RuntimeException("User with ID " + userId + " not found");
         }
 
-        // Verify all roles exist using the injected roleDao
         for (Long roleId : validRoleIds) {
             if (roleDao.findById(roleId) == null) {
                 throw new RuntimeException("Role with ID " + roleId + " does not exist");
             }
         }
 
-        // Assign roles
         try {
             userDao.assignRolesToUser(userId, validRoleIds);
             System.out.println("Successfully assigned roles " + validRoleIds + " to user " + userId);
