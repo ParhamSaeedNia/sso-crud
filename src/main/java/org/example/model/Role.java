@@ -14,13 +14,19 @@ public class Role {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles")
+    private List<User> users = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-        name = "role_permissions",
-        joinColumns = @JoinColumn(name = "role_id"),
-        inverseJoinColumns = @JoinColumn(name = "permission_id")
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     private List<Permission> permissions = new ArrayList<>();
+
+    public Role() {
+    }
 
     public Role(Long id, String name, List<Permission> permissions) {
         this.id = id;
@@ -28,9 +34,7 @@ public class Role {
         this.permissions = permissions;
     }
 
-    public Role() {
-    }
-
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -53,5 +57,24 @@ public class Role {
 
     public void setPermissions(List<Permission> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    // Helper methods for bidirectional relationships
+    public void addPermission(Permission permission) {
+        permissions.add(permission);
+        permission.getRoles().add(this);
+    }
+
+    public void removePermission(Permission permission) {
+        permissions.remove(permission);
+        permission.getRoles().remove(this);
     }
 }
